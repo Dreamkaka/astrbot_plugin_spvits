@@ -12,7 +12,7 @@ import json
 
 # 删除自定义的 Record 类，直接使用导入的 Record 类
 
-@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.8")
+@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.9")
 class SpVitsPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
@@ -144,8 +144,8 @@ class SpVitsPlugin(Star):
             return
         
         try:
-            # 获取LLM回复的文本
-            text = event.message_str.strip()
+            # 获取LLM回复的文本 - 应该使用 llm_response 而不是 event.message_str
+            text = llm_response.strip()
             if not text:
                 return
             
@@ -156,29 +156,25 @@ class SpVitsPlugin(Star):
                 # 构建请求参数
                 params = {
                     "text": segment,
-                    "speaker": self.speaker,  # 使用配置中的说话人
-                    "length": self.length,    # 使用配置中的语音长度控制
-                    "noise": self.noise,      # 使用配置中的噪声参数
-                    "noisew": self.noisew     # 使用配置中的噪声宽度参数
+                    "id": self.speaker,  # 使用 id 而不是 speaker，与 vits_command 保持一致
+                    "length": self.length,
+                    "noise": self.noise,
+                    "noisew": self.noisew
                 }
                 
                 # 发送请求获取音频数据
                 response = requests.get(self.api_url, params=params)
                 response.raise_for_status()
                 
-                # 创建临时目录
-                temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
-                os.makedirs(temp_dir, exist_ok=True)
-                
                 # 保存音频文件
                 file_name = f'vits_llm_{int(time.time())}_{hash(segment) % 10000}.wav'
-                file_path = os.path.join(temp_dir, file_name)
+                file_path = os.path.join(self.temp_dir, file_name)
                 
                 with open(file_path, 'wb') as f:
                     f.write(response.content)
                 
-                # 发送语音消息，使用正确的 Record 构造方法
-                yield MessageEventResult([Record(file=file_path)])
+                # 使用与 vits_command 相同的方式返回结果
+                return MessageEventResult([Record(file=file_path)])
                 
         except Exception as e:
             error_msg = f"LLM回复转语音失败: {str(e)}"
