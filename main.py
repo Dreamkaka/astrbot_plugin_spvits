@@ -12,12 +12,12 @@ import json
 
 # 删除自定义的 Record 类，直接使用导入的 Record 类
 
-@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.5")
+@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.6")
 class SpVitsPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
         # 从配置文件加载参数
-        self.config = context.config
+        self.config = context._config  # 修改这里，使用 _config 而不是 config
         self.api_url = self.config.get("api_url", "https://artrajz-vits-simple-api.hf.space/voice/vits")
         self.llm_voice_mode = bool(self.config.get("llm_voice_mode_default", False))
         self.max_temp_size_mb = int(self.config.get("max_temp_size_mb", 50))
