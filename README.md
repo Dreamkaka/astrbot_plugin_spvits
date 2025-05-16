@@ -1,9 +1,3 @@
-# helloworld
+基于[vits-simple-api](https://github.com/Artrajz/vits-simple-api)的astrbot tts合成插件
 
-AstrBot 插件模板
-
-A template plugin for AstrBot plugin feature
-
-# 支持
-
-[帮助文档](https://astrbot.app)
+v1.0.0
