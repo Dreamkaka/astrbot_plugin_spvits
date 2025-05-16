@@ -2,4 +2,4 @@ name: spvits # 这是你的插件的唯一识别名。
 desc: 使用simple-vits-api生成语音 # 插件简短描述
 version: v1.5 # 插件版本号。格式：v1.1.1 或者 v1.1
 author: Dreamkaka # 作者
-repo: https://github.com/Dreamkaka/astrbot_plugin_spvits# 插件的仓库地址
+repo: https://github.com/Dreamkaka/astrbot_plugin_spvits  # 插件的仓库地址
