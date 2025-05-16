@@ -12,7 +12,7 @@ import json
 
 # 删除自定义的 Record 类，直接使用导入的 Record 类
 
-@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.7")
+@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.8")
 class SpVitsPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
@@ -136,9 +136,8 @@ class SpVitsPlugin(Star):
         status = "开启" if self.llm_voice_mode else "关闭"
         yield event.plain_result(f"已{status}LLM回复语音模式")
     
-    # 修改这里的装饰器名称
     @filter.on_llm_response()
-    async def process_llm_response(self, event: AstrMessageEvent):
+    async def process_llm_response(self, event: AstrMessageEvent, llm_response):
         """处理LLM的回复，如果开启了语音模式则转为语音"""
         # 只处理开启了语音模式的情况
         if not self.llm_voice_mode:
