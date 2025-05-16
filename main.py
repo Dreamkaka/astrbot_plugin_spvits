@@ -12,20 +12,20 @@ import json
 
 # 删除自定义的 Record 类，直接使用导入的 Record 类
 
-@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.3")
+@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.5")
 class SpVitsPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
         # 从配置文件加载参数
         self.config = context.config
         self.api_url = self.config.get("api_url", "https://artrajz-vits-simple-api.hf.space/voice/vits")
-        self.llm_voice_mode = self.config.get("llm_voice_mode_default", False)
-        self.max_temp_size_mb = self.config.get("max_temp_size_mb", 50)
-        self.speaker = self.config.get("speaker", 281)
-        self.length = self.config.get("length", 1.5)
-        self.noise = self.config.get("noise", 0.33)
-        self.noisew = self.config.get("noisew", 0.5)
-        self.max_text_length = self.config.get("max_text_length", 100)
+        self.llm_voice_mode = bool(self.config.get("llm_voice_mode_default", False))
+        self.max_temp_size_mb = int(self.config.get("max_temp_size_mb", 50))
+        self.speaker = int(self.config.get("speaker", 281))
+        self.length = float(self.config.get("length", 1.5))
+        self.noise = float(self.config.get("noise", 0.33))
+        self.noisew = float(self.config.get("noisew", 0.5))
+        self.max_text_length = int(self.config.get("max_text_length", 100))
         self.temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
 
     async def initialize(self):

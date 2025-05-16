@@ -5,37 +5,37 @@
     "description": "VITS API 的 URL 地址"
   },
   "speaker": {
-    "type": "number",
+    "type": "int",
     "default": 281,
     "description": "默认说话人 ID"
   },
   "length": {
-    "type": "number",
+    "type": "float",
     "default": 1.5,
     "description": "语音长度控制，值越大语速越慢"
   },
   "noise": {
-    "type": "number",
+    "type": "float",
     "default": 0.33,
     "description": "噪声参数，控制音色随机性"
   },
   "noisew": {
-    "type": "number",
+    "type": "float",
     "default": 0.5,
     "description": "噪声宽度参数"
   },
   "max_temp_size_mb": {
-    "type": "number",
+    "type": "int",
     "default": 50,
     "description": "临时文件夹最大大小（MB）"
   },
   "llm_voice_mode_default": {
-    "type": "boolean",
+    "type": "bool",
     "default": false,
     "description": "默认是否将 LLM 回复转为语音"
   },
   "max_text_length": {
-    "type": "number",
+    "type": "int",
     "default": 100,
     "description": "单个语音片段的最大文本长度"
   }
