@@ -12,7 +12,7 @@ import json
 
 # 删除自定义的 Record 类，直接使用导入的 Record 类
 
-@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.6")
+@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.7")
 class SpVitsPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
@@ -104,7 +104,7 @@ class SpVitsPlugin(Star):
             # 构建请求参数
             params = {
                 "text": text,
-                "speaker": self.speaker,  # 使用配置中的说话人
+                "id": self.speaker,  # 使用配置中的说话人
                 "length": self.length,    # 使用配置中的语音长度控制
                 "noise": self.noise,      # 使用配置中的噪声参数
                 "noisew": self.noisew     # 使用配置中的噪声宽度参数
