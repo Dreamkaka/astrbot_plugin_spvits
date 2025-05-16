@@ -1,14 +1,15 @@
 from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
-from astrbot.api.message_components import Audio
+# 修改导入语句，使用本地的 components.py 中的 Record 类
+from components import Record
 import os
 import time
 import requests
 import re
 import glob
 
-@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.0")
+@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.1")
 class SpVitsPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
@@ -109,8 +110,8 @@ class SpVitsPlugin(Star):
             with open(file_path, 'wb') as f:
                 f.write(response.content)
             
-            # 返回音频消息
-            yield MessageEventResult([Audio(file_path)])
+            # 返回音频消息，使用 Record 替代 Audio
+            yield MessageEventResult([Record.fromFileSystem(file_path)])
             
         except Exception as e:
             error_msg = f"语音合成失败: {str(e)}"
@@ -165,8 +166,8 @@ class SpVitsPlugin(Star):
                 with open(file_path, 'wb') as f:
                     f.write(response.content)
                 
-                # 发送语音消息
-                yield MessageEventResult([Audio(file_path)])
+                # 发送语音消息，使用 Record 替代 Audio
+                yield MessageEventResult([Record.fromFileSystem(file_path)])
                 
         except Exception as e:
             error_msg = f"LLM回复转语音失败: {str(e)}"
