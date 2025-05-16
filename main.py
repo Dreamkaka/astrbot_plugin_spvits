@@ -1,26 +1,45 @@
 from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
-# 修改导入语句，使用本地的 components.py 中的 Record 类
-from components import Record
+# 修改导入语句，使用 AstrBot 的内置消息类型
+from astrbot.api.message import MessageSegment
 import os
 import time
 import requests
 import re
 import glob
+import json
 
-@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.1")
+# 创建 Record 类作为 MessageSegment 的子类
+class Record(MessageSegment):
+    """语音消息类，用于发送语音消息"""
+    type = "record"
+    
+    @classmethod
+    def fromFileSystem(cls, file_path):
+        """从文件系统加载语音文件"""
+        return cls(data={"file": file_path})
+
+@register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.2")
 class SpVitsPlugin(Star):
     def __init__(self, context: Context):
         super().__init__(context)
-        self.api_url = "https://artrajz-vits-simple-api.hf.space/voice/vits"
-        self.llm_voice_mode = False  # 默认不将LLM回复转为语音
-        self.max_temp_size_mb = 50  # 临时文件夹最大大小（MB）
+        # 从配置文件加载参数
+        self.config = context.config
+        self.api_url = self.config.get("api_url", "https://artrajz-vits-simple-api.hf.space/voice/vits")
+        self.llm_voice_mode = self.config.get("llm_voice_mode_default", False)
+        self.max_temp_size_mb = self.config.get("max_temp_size_mb", 50)
+        self.speaker = self.config.get("speaker", 281)
+        self.length = self.config.get("length", 1.5)
+        self.noise = self.config.get("noise", 0.33)
+        self.noisew = self.config.get("noisew", 0.5)
+        self.max_text_length = self.config.get("max_text_length", 100)
         self.temp_dir = os.path.join(os.path.dirname(__file__), 'temp')
 
     async def initialize(self):
         """插件初始化方法，当实例化该插件类之后会自动调用该方法。"""
         logger.info("VITS 语音合成插件已加载")
+        logger.info(f"当前配置: API URL={self.api_url}, 说话人ID={self.speaker}")
         
         # 创建临时目录用于存储生成的语音文件
         os.makedirs(self.temp_dir, exist_ok=True)
@@ -93,10 +112,10 @@ class SpVitsPlugin(Star):
             # 构建请求参数
             params = {
                 "text": text,
-                "speaker": 281,  # 默认说话人
-                "length": 1.5,  # 语音长度控制
-                "noise": 0.33,  # 噪声参数
-                "noisew": 0.5  # 噪声宽度参数
+                "speaker": self.speaker,  # 使用配置中的说话人
+                "length": self.length,    # 使用配置中的语音长度控制
+                "noise": self.noise,      # 使用配置中的噪声参数
+                "noisew": self.noisew     # 使用配置中的噪声宽度参数
             }
             
             # 发送请求获取音频数据
@@ -139,16 +158,16 @@ class SpVitsPlugin(Star):
                 return
             
             # 文本太长时分段处理
-            segments = self.split_text(text)
+            segments = self.split_text(text, self.max_text_length)
             
             for segment in segments:
                 # 构建请求参数
                 params = {
                     "text": segment,
-                    "speaker": 281,  # 默认说话人
-                    "length": 1.5,  # 语音长度控制
-                    "noise": 0.33,  # 噪声参数
-                    "noisew": 0.5  # 噪声宽度参数
+                    "speaker": self.speaker,  # 使用配置中的说话人
+                    "length": self.length,    # 使用配置中的语音长度控制
+                    "noise": self.noise,      # 使用配置中的噪声参数
+                    "noisew": self.noisew     # 使用配置中的噪声宽度参数
                 }
                 
                 # 发送请求获取音频数据
@@ -174,8 +193,12 @@ class SpVitsPlugin(Star):
             logger.error(error_msg)
             # 不向用户发送错误消息，避免打断对话流程
     
-    def split_text(self, text, max_length=100):
+    def split_text(self, text, max_length=None):
         """将长文本分割成适合语音合成的片段"""
+        # 如果未指定最大长度，使用配置中的值
+        if max_length is None:
+            max_length = self.max_text_length
+            
         # 如果文本较短，直接返回
         if len(text) <= max_length:
             return [text]
