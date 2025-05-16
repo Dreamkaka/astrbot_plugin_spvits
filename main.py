@@ -1,8 +1,8 @@
 from astrbot.api.event import filter, AstrMessageEvent, MessageEventResult
 from astrbot.api.star import Context, Star, register
 from astrbot.api import logger
-# 修改导入语句，使用 AstrBot 的内置消息类型
-from astrbot.api.message import MessageSegment
+# 修改导入语句，使用正确的模块路径
+from astrbot.api.message_components import Record, Plain
 import os
 import time
 import requests
@@ -10,15 +10,7 @@ import re
 import glob
 import json
 
-# 创建 Record 类作为 MessageSegment 的子类
-class Record(MessageSegment):
-    """语音消息类，用于发送语音消息"""
-    type = "record"
-    
-    @classmethod
-    def fromFileSystem(cls, file_path):
-        """从文件系统加载语音文件"""
-        return cls(data={"file": file_path})
+# 删除自定义的 Record 类，直接使用导入的 Record 类
 
 @register("spvits", "Dreamkaka", "使用 VITS 模型进行文本转语音", "1.2")
 class SpVitsPlugin(Star):
@@ -129,8 +121,8 @@ class SpVitsPlugin(Star):
             with open(file_path, 'wb') as f:
                 f.write(response.content)
             
-            # 返回音频消息，使用 Record 替代 Audio
-            yield MessageEventResult([Record.fromFileSystem(file_path)])
+            # 返回音频消息，使用正确的 Record 构造方法
+            yield MessageEventResult([Record(file=file_path)])
             
         except Exception as e:
             error_msg = f"语音合成失败: {str(e)}"
